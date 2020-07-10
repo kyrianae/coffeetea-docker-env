@@ -3,7 +3,10 @@ services:
     
  influxdb:
   image: influxdb:latest
+  hostname: influxdb
   container_name: influxdb
+  networks:
+   - dbdash
   ports:
   #  - "8091:2003"
   #  - "8083:8083"
@@ -17,9 +20,6 @@ services:
     - /srv/docker/influxdb/data:/var/lib/influxdb
       #networks:
       #- internal
-  networks:
-          #- influx
-    - web
 
  telegraf:
   image: telegraf:latest
@@ -30,11 +30,11 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
   networks:
-          #- influx
-    - web
+    - dbdash
 
  grafana:
   image: grafana/grafana:latest
+  hostname: grafana
   container_name: grafana
   ports:
     - "3000:3000"
@@ -54,10 +54,7 @@ services:
       #  - "traefik.frontend.rule=Host:cv.jorlando.fr"
       #  - "traefik.docker.network=web"
   networks:
-     - web
-          # - influx
-          #- sql
-       #- internal
+   - dbdash
 
  maria-db:
     container_name: maria-db
@@ -75,18 +72,11 @@ services:
         #networks:
         #- internal
     networks:
-            #- sql
-      - web
+      - dbdash
 
 networks:
- web:
-   driver: bridge
- sql:
-   driver: bridge
- influx:
-   driver: bridge
-   #    external:
-   #     name: web
-         # internal:
-         #    driver: bridge
+    dbdash:
+        # use the bridge driver, but enable IPv6
+        driver: bridge        
+
 
